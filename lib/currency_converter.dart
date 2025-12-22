@@ -1,6 +1,7 @@
 import 'dart:convert'; // Used to decode JSON responses coming from the API
 import 'package:flutter/material.dart'; // Core Flutter UI framework
 import 'package:http/http.dart' as http; // HTTP package to make API calls
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // =======================
 // MAIN PAGE WIDGET
@@ -28,23 +29,168 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
 
   // List of supported currency codes used in dropdowns
   final List<String> currencies = [
-    'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
-    'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL',
-    'BSD', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHF', 'CLP', 'CNY',
-    'COP', 'CRC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD', 'EGP',
-    'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'FOK', 'GBP', 'GEL', 'GGP', 'GHS',
-    'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF',
-    'IDR', 'ILS', 'IMP', 'INR', 'IQD', 'IRR', 'ISK', 'JEP', 'JMD', 'JOD',
-    'JPY', 'KES', 'KGS', 'KHR', 'KID', 'KMF', 'KRW', 'KWD', 'KYD', 'KZT',
-    'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD', 'MDL', 'MGA', 'MKD',
-    'MMK', 'MNT', 'MOP', 'MRU', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN',
-    'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK',
-    'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR',
-    'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLE', 'SLL', 'SOS', 'SRD',
-    'SSP', 'STN', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY',
-    'TTD', 'TVD', 'TWD', 'TZS', 'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VES',
-    'VND', 'VUV', 'WST', 'XAF', 'XCD', 'XDR', 'XOF', 'XPF', 'YER', 'ZAR',
-    'ZMW', 'ZWL'
+    'AED',
+    'AFN',
+    'ALL',
+    'AMD',
+    'ANG',
+    'AOA',
+    'ARS',
+    'AUD',
+    'AWG',
+    'AZN',
+    'BAM',
+    'BBD',
+    'BDT',
+    'BGN',
+    'BHD',
+    'BIF',
+    'BMD',
+    'BND',
+    'BOB',
+    'BRL',
+    'BSD',
+    'BTN',
+    'BWP',
+    'BYN',
+    'BZD',
+    'CAD',
+    'CDF',
+    'CHF',
+    'CLP',
+    'CNY',
+    'COP',
+    'CRC',
+    'CUP',
+    'CVE',
+    'CZK',
+    'DJF',
+    'DKK',
+    'DOP',
+    'DZD',
+    'EGP',
+    'ERN',
+    'ETB',
+    'EUR',
+    'FJD',
+    'FKP',
+    'FOK',
+    'GBP',
+    'GEL',
+    'GGP',
+    'GHS',
+    'GIP',
+    'GMD',
+    'GNF',
+    'GTQ',
+    'GYD',
+    'HKD',
+    'HNL',
+    'HRK',
+    'HTG',
+    'HUF',
+    'IDR',
+    'ILS',
+    'IMP',
+    'INR',
+    'IQD',
+    'IRR',
+    'ISK',
+    'JEP',
+    'JMD',
+    'JOD',
+    'JPY',
+    'KES',
+    'KGS',
+    'KHR',
+    'KID',
+    'KMF',
+    'KRW',
+    'KWD',
+    'KYD',
+    'KZT',
+    'LAK',
+    'LBP',
+    'LKR',
+    'LRD',
+    'LSL',
+    'LYD',
+    'MAD',
+    'MDL',
+    'MGA',
+    'MKD',
+    'MMK',
+    'MNT',
+    'MOP',
+    'MRU',
+    'MUR',
+    'MVR',
+    'MWK',
+    'MXN',
+    'MYR',
+    'MZN',
+    'NAD',
+    'NGN',
+    'NIO',
+    'NOK',
+    'NPR',
+    'NZD',
+    'OMR',
+    'PAB',
+    'PEN',
+    'PGK',
+    'PHP',
+    'PKR',
+    'PLN',
+    'PYG',
+    'QAR',
+    'RON',
+    'RSD',
+    'RUB',
+    'RWF',
+    'SAR',
+    'SBD',
+    'SCR',
+    'SDG',
+    'SEK',
+    'SGD',
+    'SHP',
+    'SLE',
+    'SLL',
+    'SOS',
+    'SRD',
+    'SSP',
+    'STN',
+    'SYP',
+    'SZL',
+    'THB',
+    'TJS',
+    'TMT',
+    'TND',
+    'TOP',
+    'TRY',
+    'TTD',
+    'TVD',
+    'TWD',
+    'TZS',
+    'UAH',
+    'UGX',
+    'USD',
+    'UYU',
+    'UZS',
+    'VES',
+    'VND',
+    'VUV',
+    'WST',
+    'XAF',
+    'XCD',
+    'XDR',
+    'XOF',
+    'XPF',
+    'YER',
+    'ZAR',
+    'ZMW',
+    'ZWL',
   ];
 
   // Default source currency
@@ -59,6 +205,10 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // Controller to read user input from the TextField
   final TextEditingController controller = TextEditingController();
 
+Future<void> main() async {
+  await dotenv.load(fileName: ".env"); // Load the secrets
+}
+
   // =======================
   // API CALL LOGIC
   // =======================
@@ -66,8 +216,9 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // Fetches exchange rate from `from` currency to `to` currency
   Future<double> fetchExchangeRate(String from, String to) async {
     // API endpoint URL with base currency as `from`
+    String myKey = dotenv.env['API_KEY'] ?? 'default_key';
     final url = Uri.parse(
-      'https://v6.exchangerate-api.com/v6/8203a82a22d2a884ba5e94bb/latest/$from',
+      'https://v6.exchangerate-api.com/v6/$myKey/latest/$from',
     );
 
     // Make GET request to the API
@@ -102,17 +253,13 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   }) {
     return DropdownButtonFormField<String>(
       value: value, // Currently selected currency
-
       // Style of selected value
       style: const TextStyle(color: Colors.white),
 
       // Custom widget for selected item display
       selectedItemBuilder: (BuildContext context) {
         return currencies.map<Widget>((String item) {
-          return Text(
-            item,
-            style: const TextStyle(color: Colors.white),
-          );
+          return Text(item, style: const TextStyle(color: Colors.white));
         }).toList();
       },
 
@@ -137,9 +284,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Color.fromRGBO(243, 176, 28, 1),
-          ),
+          borderSide: const BorderSide(color: Color.fromRGBO(243, 176, 28, 1)),
           borderRadius: BorderRadius.circular(20),
         ),
       ),
@@ -215,7 +360,9 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
 
             const SizedBox(height: 24),
