@@ -1,11 +1,8 @@
-import 'package:currency_converter/currency_converter_cupertino_page.dart';
-import 'package:currency_converter/currency_converter_material_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:currency_converter/currency_converter_dropdown.dart';
+import 'package:currency_converter/currency_converter.dart';
 
 void main() {
-  runApp(const MyDropdown()); // General syntax for launching an app.
+  runApp(const MyApp()); // General syntax for launching an app.
 }
 
 // Types of widgets
@@ -31,32 +28,9 @@ void main() {
 // int --> string integervalue.toString();
 // String --> int.parse(Stringvalue);
 
-class MyMaterialPageApp
-    extends
-        StatelessWidget // Creation of main class
-        {
-  const MyMaterialPageApp({super.key}); // Basic constructor syntax
-  @override
-  Widget build(BuildContext context) // Overidng an abstract class
-  {
-    return const MaterialApp(
-      home: CurrencyConverterMaterialPage(),
-    ); // Global formatting options developed by google
-  }
-}
 
-class MyCupertinoApp extends StatelessWidget {
-  const MyCupertinoApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoApp(home: CurrencyConverterCupertinoPage(),
-    );
-  }
-}
-
-class MyDropdown extends StatelessWidget {
-  const MyDropdown({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
