@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:currency_converter/currency_converter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
-  runApp(const MyApp()); // General syntax for launching an app.
+Future<void> main() async {
+  // 1. Ensure Flutter is ready to talk to the native platform
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Load the .env file BEFORE the app starts
+  await dotenv.load(fileName: ".env");
+  runApp(const MyApp());
 }
-
 // Types of widgets
 // 1. Stateless Widget (immutable state)
 // 2. Stateful Widget (mutable state)
@@ -28,13 +33,11 @@ void main() {
 // int --> string integervalue.toString();
 // String --> int.parse(Stringvalue);
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: CurrencyConverterPage(),
-    );
+    return const MaterialApp(home: CurrencyConverterPage());
   }
 }

@@ -205,10 +205,6 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // Controller to read user input from the TextField
   final TextEditingController controller = TextEditingController();
 
-Future<void> main() async {
-  await dotenv.load(fileName: ".env"); // Load the secrets
-}
-
   // =======================
   // API CALL LOGIC
   // =======================
@@ -216,7 +212,7 @@ Future<void> main() async {
   // Fetches exchange rate from `from` currency to `to` currency
   Future<double> fetchExchangeRate(String from, String to) async {
     // API endpoint URL with base currency as `from`
-    String myKey = dotenv.env['API_KEY'] ?? 'default_key';
+    String myKey = dotenv.env['API_KEY'] ?? 'Key not found';
     final url = Uri.parse(
       'https://v6.exchangerate-api.com/v6/$myKey/latest/$from',
     );
