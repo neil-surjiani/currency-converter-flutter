@@ -23,175 +23,38 @@ class CurrencyConverterPage extends StatefulWidget {
 class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // This class holds all mutable data (state) and UI logic
 
+// =======================
+// A class which converts values on pressed
+// =======================
+
+  Future<void> convert() async {
+    // Convert input text to double
+    final amount = double.tryParse(controller.text);
+
+    // If input is invalid, do nothing
+    if (amount == null) return;
+
+    // Fetch exchange rate
+    final rate = await fetchExchangeRate(fromCurrency, toCurrency);
+
+    // Update UI with converted value
+    setState(() {
+      result = (amount * rate).toStringAsFixed(2);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrencies(from: fromCurrency, to: toCurrency);
+  }
+
   // =======================
   // CURRENCY DATA
   // =======================
 
   // List of supported currency codes used in dropdowns
-  final List<String> currencies = [
-    'AED',
-    'AFN',
-    'ALL',
-    'AMD',
-    'ANG',
-    'AOA',
-    'ARS',
-    'AUD',
-    'AWG',
-    'AZN',
-    'BAM',
-    'BBD',
-    'BDT',
-    'BGN',
-    'BHD',
-    'BIF',
-    'BMD',
-    'BND',
-    'BOB',
-    'BRL',
-    'BSD',
-    'BTN',
-    'BWP',
-    'BYN',
-    'BZD',
-    'CAD',
-    'CDF',
-    'CHF',
-    'CLP',
-    'CNY',
-    'COP',
-    'CRC',
-    'CUP',
-    'CVE',
-    'CZK',
-    'DJF',
-    'DKK',
-    'DOP',
-    'DZD',
-    'EGP',
-    'ERN',
-    'ETB',
-    'EUR',
-    'FJD',
-    'FKP',
-    'FOK',
-    'GBP',
-    'GEL',
-    'GGP',
-    'GHS',
-    'GIP',
-    'GMD',
-    'GNF',
-    'GTQ',
-    'GYD',
-    'HKD',
-    'HNL',
-    'HRK',
-    'HTG',
-    'HUF',
-    'IDR',
-    'ILS',
-    'IMP',
-    'INR',
-    'IQD',
-    'IRR',
-    'ISK',
-    'JEP',
-    'JMD',
-    'JOD',
-    'JPY',
-    'KES',
-    'KGS',
-    'KHR',
-    'KID',
-    'KMF',
-    'KRW',
-    'KWD',
-    'KYD',
-    'KZT',
-    'LAK',
-    'LBP',
-    'LKR',
-    'LRD',
-    'LSL',
-    'LYD',
-    'MAD',
-    'MDL',
-    'MGA',
-    'MKD',
-    'MMK',
-    'MNT',
-    'MOP',
-    'MRU',
-    'MUR',
-    'MVR',
-    'MWK',
-    'MXN',
-    'MYR',
-    'MZN',
-    'NAD',
-    'NGN',
-    'NIO',
-    'NOK',
-    'NPR',
-    'NZD',
-    'OMR',
-    'PAB',
-    'PEN',
-    'PGK',
-    'PHP',
-    'PKR',
-    'PLN',
-    'PYG',
-    'QAR',
-    'RON',
-    'RSD',
-    'RUB',
-    'RWF',
-    'SAR',
-    'SBD',
-    'SCR',
-    'SDG',
-    'SEK',
-    'SGD',
-    'SHP',
-    'SLE',
-    'SLL',
-    'SOS',
-    'SRD',
-    'SSP',
-    'STN',
-    'SYP',
-    'SZL',
-    'THB',
-    'TJS',
-    'TMT',
-    'TND',
-    'TOP',
-    'TRY',
-    'TTD',
-    'TVD',
-    'TWD',
-    'TZS',
-    'UAH',
-    'UGX',
-    'USD',
-    'UYU',
-    'UZS',
-    'VES',
-    'VND',
-    'VUV',
-    'WST',
-    'XAF',
-    'XCD',
-    'XDR',
-    'XOF',
-    'XPF',
-    'YER',
-    'ZAR',
-    'ZMW',
-    'ZWL',
-  ];
+  List<String> currencies = [];
 
   // Default source currency
   String fromCurrency = 'USD';
@@ -204,6 +67,35 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
 
   // Controller to read user input from the TextField
   final TextEditingController controller = TextEditingController();
+
+  // =======================
+  // CURRENCY LIST CALL LOGIC
+  // =======================
+
+  Future<void> fetchCurrencies({
+    required String from,
+    required String to,
+  }) async {
+    String myKey = dotenv.env['API_KEY'] ?? '';
+    final url = Uri.parse(
+      'https://v6.exchangerate-api.com/v6/$myKey/latest/$from',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      // ✅ Extract currencies from API
+      final rates = data['conversion_rates'] as Map<String, dynamic>;
+
+      setState(() {
+        currencies = rates.keys.toList()..sort();
+      });
+    } else {
+      throw Exception('Failed to load currencies');
+    }
+  }
 
   // =======================
   // API CALL LOGIC
@@ -364,6 +256,36 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
             const SizedBox(height: 24),
 
             // =======================
+            // FROM & TO
+            // =======================
+
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 18, right: 20),
+                    child: Text(
+                      "From",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 28, color: Colors.white),
+                    ),
+                  ),
+                ),
+ 
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 18, left: 20),
+                    child: Text(
+                      "To",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 28, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // =======================
             // CURRENCY SELECTION ROW
             // =======================
             Row(
@@ -379,9 +301,24 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
                   ),
                 ),
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Icon(Icons.arrow_forward, color: Colors.white),
+            // =======================
+            // REVERSE BUTTON
+            // =======================
+
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(10, 25, 47, 1),
+                  ),
+                  onPressed: () async {
+                    setState(() {
+                      String temp = "";
+                      temp = fromCurrency;
+                      fromCurrency = toCurrency;
+                      toCurrency = temp;
+                      convert();
+                    });
+                  },
+                  child: Icon(Icons.swap_horiz, color: Colors.white),
                 ),
 
                 Expanded(
@@ -411,19 +348,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
                 ),
               ),
               onPressed: () async {
-                // Convert input text to double
-                final amount = double.tryParse(controller.text);
-
-                // If input is invalid, do nothing
-                if (amount == null) return;
-
-                // Fetch exchange rate
-                final rate = await fetchExchangeRate(fromCurrency, toCurrency);
-
-                // Update UI with converted value
-                setState(() {
-                  result = (amount * rate).toStringAsFixed(2);
-                });
+                convert();
               },
               child: const Text(
                 'Convert',
