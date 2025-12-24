@@ -23,9 +23,16 @@ class CurrencyConverterPage extends StatefulWidget {
 class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // This class holds all mutable data (state) and UI logic
 
-// =======================
-// A class which converts values on pressed
-// =======================
+  Future<void> getRate() async {
+    final rate = await fetchExchangeRate(fromCurrency, toCurrency);
+    setState(() {
+      exchangeRate = rate;
+    });
+  }
+
+  // =======================
+  // A class which converts values on pressed
+  // =======================
 
   Future<void> convert() async {
     // Convert input text to double
@@ -39,6 +46,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
 
     // Update UI with converted value
     setState(() {
+      exchangeRate = rate;
       result = (amount * rate).toStringAsFixed(2);
     });
   }
@@ -65,6 +73,9 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // Stores the converted amount displayed on screen
   String result = '0.00';
 
+  // To store exchange rate
+  double exchangeRate = 0.0;
+
   // Controller to read user input from the TextField
   final TextEditingController controller = TextEditingController();
 
@@ -72,10 +83,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
   // CURRENCY LIST CALL LOGIC
   // =======================
 
-  Future<void> fetchCurrencies({
-    required String from,
-    required String to,
-  }) async {
+  Future<void> fetchCurrencies({required String from,required String to,}) async {
     String myKey = dotenv.env['API_KEY'] ?? '';
     final url = Uri.parse(
       'https://v6.exchangerate-api.com/v6/$myKey/latest/$from',
@@ -88,6 +96,8 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
 
       // ✅ Extract currencies from API
       final rates = data['conversion_rates'] as Map<String, dynamic>;
+
+      getRate();
 
       setState(() {
         currencies = rates.keys.toList()..sort();
@@ -111,6 +121,8 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
 
     // Make GET request to the API
     final response = await http.get(url);
+
+    getRate();
 
     // If both currencies are same, conversion rate is 1
     if (from == to) {
@@ -256,33 +268,18 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
             const SizedBox(height: 24),
 
             // =======================
-            // FROM & TO
+            // SHOWING CONVERSION RATE
             // =======================
-
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 18, right: 20),
-                    child: Text(
-                      "From",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 28, color: Colors.white),
-                    ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  Text(
+                    '1 $fromCurrency = ${exchangeRate.toStringAsFixed(2)} $toCurrency',
+                    style: const TextStyle(color: Colors.white, fontSize: 25),
                   ),
-                ),
- 
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 18, left: 20),
-                    child: Text(
-                      "To",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 28, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             // =======================
@@ -301,10 +298,9 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> {
                   ),
                 ),
 
-            // =======================
-            // REVERSE BUTTON
-            // =======================
-
+                // =======================
+                // REVERSE BUTTON
+                // =======================
                 TextButton(
                   style: TextButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(10, 25, 47, 1),
